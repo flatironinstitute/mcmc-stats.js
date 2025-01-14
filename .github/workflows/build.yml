@@ -1,0 +1,31 @@
+name: test
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+  workflow_dispatch: {}
+
+# only run one copy per PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install typescript dependencies
+        run: yarn
+      - name: Run tests
+        run: yarn test
